@@ -1,6 +1,6 @@
 package jakesmythuk.terrastorageicons;
 
-import me.timvinci.gui.widget.StorageButtonWidget;
+import me.timvinci.terrastorage.gui.widget.StorageButtonWidget;
 
 public interface IButton {
     StorageButtonWidget setIconCoords(int x, int y);

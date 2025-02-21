@@ -1,14 +1,14 @@
 package jakesmythuk.terrastorageicons;
 
-import me.timvinci.config.ClientConfigManager;
-import me.timvinci.gui.TerrastorageOptionsScreen;
-import me.timvinci.gui.widget.StorageButtonCreator;
-import me.timvinci.gui.widget.StorageButtonWidget;
-import me.timvinci.network.ClientNetworkHandler;
-import me.timvinci.util.ButtonsPlacement;
-import me.timvinci.util.ButtonsStyle;
-import me.timvinci.util.LocalizedTextProvider;
-import me.timvinci.util.StorageAction;
+import me.timvinci.terrastorage.config.ClientConfigManager;
+import me.timvinci.terrastorage.gui.TerrastorageOptionsScreen;
+import me.timvinci.terrastorage.gui.widget.StorageButtonCreator;
+import me.timvinci.terrastorage.gui.widget.StorageButtonWidget;
+import me.timvinci.terrastorage.network.ClientNetworkHandler;
+import me.timvinci.terrastorage.util.ButtonsPlacement;
+import me.timvinci.terrastorage.util.ButtonsStyle;
+import me.timvinci.terrastorage.util.LocalizedTextProvider;
+import me.timvinci.terrastorage.util.StorageAction;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -91,7 +91,7 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 						buttonText = (Text) LocalizedTextProvider.buttonTextCache.get(storageAction);
 						buttonWidth = screen.textRenderer().getWidth(buttonText) + 6;
 						buttonTooltip = (Tooltip)LocalizedTextProvider.buttonTooltipCache.get(storageAction);
-						button = StorageButtonCreator.createStorageButton(storageAction, buttonText, buttonTooltip, buttonX, buttonY, buttonWidth, buttonHeight);
+						button = StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, buttonTooltip);
 						screen.terrastorageIcons$addDrawableChild(button);
 						buttonY += buttonHeight + buttonSpacing;
 					}
@@ -128,7 +128,7 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 						buttonText = LocalizedTextProvider.buttonTextCache.get(storageAction);
 						buttonTooltip = LocalizedTextProvider.buttonTooltipCache.get(storageAction);
 						button = editButtonWidget(
-								StorageButtonCreator.createStorageButton(storageAction, buttonText, buttonTooltip, buttonX, buttonY, buttonWidth, buttonHeight),
+								StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, buttonTooltip),
 								posX, posY
 						);
 						screen.terrastorageIcons$addDrawableChild(button);

@@ -1,8 +1,8 @@
 package jakesmythuk.terrastorageicons.mixin.client;
 
-import me.timvinci.gui.widget.StorageButtonCreator;
-import me.timvinci.gui.widget.StorageButtonWidget;
-import me.timvinci.util.StorageAction;
+import me.timvinci.terrastorage.gui.widget.StorageButtonCreator;
+import me.timvinci.terrastorage.gui.widget.StorageButtonWidget;
+import me.timvinci.terrastorage.util.StorageAction;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.text.Text;

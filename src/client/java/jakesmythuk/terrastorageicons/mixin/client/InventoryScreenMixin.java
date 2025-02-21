@@ -1,9 +1,9 @@
 package jakesmythuk.terrastorageicons.mixin.client;
 
 import jakesmythuk.terrastorageicons.IButton;
-import me.timvinci.gui.widget.StorageButtonWidget;
-import me.timvinci.network.ClientNetworkHandler;
-import me.timvinci.util.StorageAction;
+import me.timvinci.terrastorage.gui.widget.StorageButtonWidget;
+import me.timvinci.terrastorage.network.ClientNetworkHandler;
+import me.timvinci.terrastorage.util.StorageAction;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
