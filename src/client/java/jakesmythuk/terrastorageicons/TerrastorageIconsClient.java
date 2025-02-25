@@ -91,7 +91,8 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 						buttonText = (Text) LocalizedTextProvider.buttonTextCache.get(storageAction);
 						buttonWidth = screen.textRenderer().getWidth(buttonText) + 6;
 						buttonTooltip = (Tooltip)LocalizedTextProvider.buttonTooltipCache.get(storageAction);
-						button = StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, buttonTooltip);
+						button = StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, ButtonsStyle.DEFAULT);
+						button.setTooltip(buttonTooltip);
 						screen.terrastorageIcons$addDrawableChild(button);
 						buttonY += buttonHeight + buttonSpacing;
 					}
@@ -112,12 +113,11 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 
 					if (ClientConfigManager.getInstance().getConfig().getDisplayOptionsButton()) {
 						//optionsButtonY = screen.y() - 20;
-						ButtonWidget optionsButtonWidget = editButtonWidget(
-								new StorageButtonWidget(buttonX, buttonY, buttonWidth, buttonHeight,
-										Text.translatable("terrastorage.button.options"),
-										Tooltip.of(Text.translatable("terrastorage.button.tooltip.options")), clickOptions(screen)),
-								32, 16
-						);
+						StorageButtonWidget storageButtonWidget = new StorageButtonWidget(buttonX, buttonY, buttonWidth, buttonHeight,
+								Text.translatable("terrastorage.button.options"),
+								ButtonsStyle.DEFAULT, clickOptions(screen));
+						storageButtonWidget.setTooltip(Tooltip.of(Text.translatable("terrastorage.button.tooltip.options")));
+						ButtonWidget optionsButtonWidget = editButtonWidget(storageButtonWidget, 32, 16);
 						screen.terrastorageIcons$addDrawableChild(optionsButtonWidget);
 						buttonY += buttonHeight + buttonSpacing;
 					}
@@ -127,8 +127,10 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 						storageAction = _buttonActions[i];
 						buttonText = LocalizedTextProvider.buttonTextCache.get(storageAction);
 						buttonTooltip = LocalizedTextProvider.buttonTooltipCache.get(storageAction);
+						StorageButtonWidget storageButtonWidget = StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, ButtonsStyle.DEFAULT);
+						storageButtonWidget.setTooltip(buttonTooltip);
 						button = editButtonWidget(
-								StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, buttonTooltip),
+								storageButtonWidget,
 								posX, posY
 						);
 						screen.terrastorageIcons$addDrawableChild(button);
@@ -154,11 +156,13 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 	}
 
 	private static StorageButtonWidget getButtonWidget(int x, int y, int width, int height, Text message, Tooltip tooltipLoc, ButtonWidget.PressAction action, int iconX, int iconY) {
-		return ((IButton) new StorageButtonWidget(x, y, width, height,
+		StorageButtonWidget storageButtonWidget = new StorageButtonWidget(x, y, width, height,
 				message,
-				tooltipLoc,
+				ButtonsStyle.DEFAULT,
 				action
-		)).setIconCoords(iconX, iconY);
+		);
+		storageButtonWidget.setTooltip(tooltipLoc);
+		return ((IButton) storageButtonWidget).setIconCoords(iconX, iconY);
 	}
 	private static StorageButtonWidget getButtonWidget(int x, int y, Text message, Tooltip tooltipLoc, ButtonWidget.PressAction action, int iconX, int iconY) {
 		return getButtonWidget(x, y, 16, 16, message, tooltipLoc, action, iconX, iconY);

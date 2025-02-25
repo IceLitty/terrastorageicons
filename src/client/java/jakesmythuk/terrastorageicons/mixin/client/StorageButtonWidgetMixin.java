@@ -31,7 +31,7 @@ public abstract class StorageButtonWidgetMixin extends ButtonWidget implements I
                 message, onPress, narrationSupplier);
     }
 
-    @Inject(at = @At("HEAD"), method = "renderButton", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "renderWidget", cancellable = true)
     private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         context.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
