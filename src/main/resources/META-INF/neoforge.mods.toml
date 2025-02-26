@@ -1,0 +1,49 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "CC0-1.0"
+
+[[mixins]]
+config="terrastorageicons.mixins.json"
+
+#[[accessTransformers]]
+#file="META-INF/accesstransformer.cfg"
+
+[[mods]]
+modId = "terrastorageicons"
+version = "${version}"
+displayName = "Terrastorage Icons"
+logoFile = "assets/terrastorageicons/icon.png"
+updateJSONURL = ""
+displayURL = ""
+authors = "JakeSmythUK"
+description = '''
+An addon for Terrastorage that replaces the ui buttons with icons!
+'''
+
+[[dependencies.terrastorageicons]]
+modId = "neoforge"
+type="required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.terrastorageicons]]
+modId = "minecraft"
+type="required"
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.terrastorageicons]]
+modId = "fabric_api"
+type="required"
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.terrastorageicons]]
+modId = "terrastorage"
+type="required"
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"

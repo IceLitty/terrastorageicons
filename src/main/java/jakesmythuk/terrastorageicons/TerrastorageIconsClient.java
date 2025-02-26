@@ -1,24 +1,25 @@
 package jakesmythuk.terrastorageicons;
 
-import me.timvinci.terrastorage.config.ClientConfigManager;
-import me.timvinci.terrastorage.gui.TerrastorageOptionsScreen;
-import me.timvinci.terrastorage.gui.widget.StorageButtonCreator;
-import me.timvinci.terrastorage.gui.widget.StorageButtonWidget;
-import me.timvinci.terrastorage.network.ClientNetworkHandler;
-import me.timvinci.terrastorage.util.ButtonsPlacement;
-import me.timvinci.terrastorage.util.ButtonsStyle;
-import me.timvinci.terrastorage.util.LocalizedTextProvider;
+import jakesmythuk.terrastorageicons.client.IButton;
+import jakesmythuk.terrastorageicons.client.IScreen;
+import me.timvinci.terrastorage.config.client.ClientConfigManager;
+import me.timvinci.terrastorage.client.gui.TerrastorageOptionsScreen;
+import me.timvinci.terrastorage.client.gui.widget.StorageButtonCreator;
+import me.timvinci.terrastorage.client.gui.widget.StorageButtonWidget;
+import me.timvinci.terrastorage.util.client.ButtonsPlacement;
+import me.timvinci.terrastorage.util.client.ButtonsStyle;
+import me.timvinci.terrastorage.util.client.LocalizedTextProvider;
 import me.timvinci.terrastorage.util.StorageAction;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -31,9 +32,9 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 
 	}
 
-	public static void renderButton(IButton button, DrawContext context, float delta) {
+	public static void renderButton(IButton button, GuiGraphics context, float delta) {
 		StorageButtonWidget widget = ((StorageButtonWidget)(Object)button);
-		if (widget.isSelected()) {
+		if (widget.isHoveredOrFocused()) {
 			button.selectedFrame(button.selectedFrame() + delta * 0.4f);
 			if (button.selectedFrame() >= 3)
 				button.selectedFrame(2);
@@ -41,26 +42,26 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 			button.selectedFrame(0);
 
 		if (ClientConfigManager.getInstance().getConfig().getButtonsStyle() == ButtonsStyle.DEFAULT) {
-			context.drawTexture(ICONS_TEXTURE,
+			context.blit(ICONS_TEXTURE,
 					button.getX(), button.getY(),
 					16, 16,
 					button.iconOffsetX(), button.iconOffsetY() + (button.getIconY() - button.iconOffsetY()) * 2,
 					16, 16,
 					TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		}
-		context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		context.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 
-	public static void initScreen(HandledScreen<?> widget, IScreen screen) {
-		if (!MinecraftClient.getInstance().player.isSpectator()) {
-			if (widget.getScreenHandler().slots.size() - 36 >= 27) {
+	public static void initScreen(AbstractContainerScreen<?> widget, IScreen screen) {
+		if (!Minecraft.getInstance().player.isSpectator()) {
+			if (widget.getMenu().slots.size() - 36 >= 27) {
 				boolean isEnderChest = false;
-				if (widget.getScreenHandler() instanceof GenericContainerScreenHandler && widget.getTitle().equals(Text.translatable("container.enderchest"))) {
+				if (widget.getMenu() instanceof ChestMenu && widget.getTitle().equals(Component.translatable("container.enderchest"))) {
 					isEnderChest = true;
 				}
 
-				StorageAction[] buttonActions = getButtonsActions(isEnderChest);
+				StorageAction[] buttonActions = StorageAction.getButtonsActions(isEnderChest);
 				int buttonWidth = 70;
 				int buttonHeight = 15;
 				int buttonSpacing = 2;
@@ -79,7 +80,7 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 				int optionsButtonY;
 				int i;
 				StorageAction storageAction;
-				Text buttonText;
+				Component buttonText;
 				Tooltip buttonTooltip;
 				StorageButtonWidget button;
 				if (ClientConfigManager.getInstance().getConfig().getButtonsStyle() == ButtonsStyle.TEXT_ONLY) {
@@ -88,8 +89,8 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 
 					for(i = 0; i < optionsButtonY; ++i) {
 						storageAction = _buttonActions[i];
-						buttonText = (Text) LocalizedTextProvider.buttonTextCache.get(storageAction);
-						buttonWidth = screen.textRenderer().getWidth(buttonText) + 6;
+						buttonText = (Component) LocalizedTextProvider.buttonTextCache.get(storageAction);
+						buttonWidth = screen.textRenderer().width(buttonText) + 6;
 						buttonTooltip = (Tooltip)LocalizedTextProvider.buttonTooltipCache.get(storageAction);
 						button = StorageButtonCreator.createStorageButton(storageAction, buttonX, buttonY, buttonWidth, buttonHeight, buttonText, ButtonsStyle.DEFAULT);
 						button.setTooltip(buttonTooltip);
@@ -98,12 +99,12 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 					}
 
 					if (ClientConfigManager.getInstance().getConfig().getDisplayOptionsButton()) {
-						int optionsButtonX = (screen.client().currentScreen.width - 120) / 2;
+						int optionsButtonX = (screen.client().screen.width - 120) / 2;
 						optionsButtonY = screen.y() - 20;
-						ButtonWidget optionsButtonWidget = getButtonWidget(optionsButtonX, optionsButtonY, 120, 15,
-								Text.translatable("terrastorage.button.options"),
-								Tooltip.of(Text.translatable("terrastorage.button.tooltip.options")), clickOptions(screen), 32, 16);
-						//optionsButtonWidget.setTooltip(Tooltip.of(Text.translatable("terrastorage.button.tooltip.options")));
+						Button optionsButtonWidget = getButtonWidget(optionsButtonX, optionsButtonY, 120, 15,
+								Component.translatable("terrastorage.button.options"),
+								Tooltip.create(Component.translatable("terrastorage.button.tooltip.options")), clickOptions(screen), 32, 16);
+						//optionsButtonWidget.setTooltip(Tooltip.create(Component.translatable("terrastorage.button.tooltip.options")));
 						screen.terrastorageIcons$addDrawableChild(optionsButtonWidget);
 					}
 				} else {
@@ -114,10 +115,10 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 					if (ClientConfigManager.getInstance().getConfig().getDisplayOptionsButton()) {
 						//optionsButtonY = screen.y() - 20;
 						StorageButtonWidget storageButtonWidget = new StorageButtonWidget(buttonX, buttonY, buttonWidth, buttonHeight,
-								Text.translatable("terrastorage.button.options"),
+								Component.translatable("terrastorage.button.options"),
 								ButtonsStyle.DEFAULT, clickOptions(screen));
-						storageButtonWidget.setTooltip(Tooltip.of(Text.translatable("terrastorage.button.tooltip.options")));
-						ButtonWidget optionsButtonWidget = editButtonWidget(storageButtonWidget, 32, 16);
+						storageButtonWidget.setTooltip(Tooltip.create(Component.translatable("terrastorage.button.tooltip.options")));
+						Button optionsButtonWidget = editButtonWidget(storageButtonWidget, 32, 16);
 						screen.terrastorageIcons$addDrawableChild(optionsButtonWidget);
 						buttonY += buttonHeight + buttonSpacing;
 					}
@@ -147,15 +148,15 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 		}
 	}
 
-	private static ButtonWidget.@NotNull PressAction clickOptions(IScreen screen) {
+	private static @NotNull Button.OnPress clickOptions(IScreen screen) {
 		return (onPress) -> {
 			screen.client().execute(() -> {
-				screen.client().setScreen(new TerrastorageOptionsScreen(screen.client().currentScreen));
+				screen.client().setScreen(new TerrastorageOptionsScreen(screen.client().screen));
 			});
 		};
 	}
 
-	private static StorageButtonWidget getButtonWidget(int x, int y, int width, int height, Text message, Tooltip tooltipLoc, ButtonWidget.PressAction action, int iconX, int iconY) {
+	private static StorageButtonWidget getButtonWidget(int x, int y, int width, int height, Component message, Tooltip tooltipLoc, Button.OnPress action, int iconX, int iconY) {
 		StorageButtonWidget storageButtonWidget = new StorageButtonWidget(x, y, width, height,
 				message,
 				ButtonsStyle.DEFAULT,
@@ -164,15 +165,10 @@ public class TerrastorageIconsClient implements ClientModInitializer {
 		storageButtonWidget.setTooltip(tooltipLoc);
 		return ((IButton) storageButtonWidget).setIconCoords(iconX, iconY);
 	}
-	private static StorageButtonWidget getButtonWidget(int x, int y, Text message, Tooltip tooltipLoc, ButtonWidget.PressAction action, int iconX, int iconY) {
+	private static StorageButtonWidget getButtonWidget(int x, int y, Component message, Tooltip tooltipLoc, Button.OnPress action, int iconX, int iconY) {
 		return getButtonWidget(x, y, 16, 16, message, tooltipLoc, action, iconX, iconY);
 	}
 	private static StorageButtonWidget editButtonWidget(StorageButtonWidget widget, int iconX, int iconY) {
 		return ((IButton) widget).setIconCoords(iconX, iconY);
-	}
-
-	private static StorageAction[] getButtonsActions(boolean isEnderChest) {
-		StorageAction[] allActions = StorageAction.values();
-		return Arrays.copyOf(allActions, allActions.length - (isEnderChest ? 2 : 1));
 	}
 }

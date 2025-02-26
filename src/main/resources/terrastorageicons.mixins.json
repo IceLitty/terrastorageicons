@@ -5,6 +5,12 @@
 	"mixins": [
 		"ExampleMixin"
 	],
+	"client": [
+		"client.HandledScreenMixin",
+		"client.InventoryScreenMixin",
+		"client.StorageButtonCreatorMixin",
+		"client.StorageButtonWidgetMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	},

@@ -1,6 +1,19 @@
 plugins {
-	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'java-library'
+	id 'eclipse'
+	id 'idea'
 	id 'maven-publish'
+	id 'net.neoforged.gradle.userdev' version '7.0.170'
+	id 'net.neoforged.gradle.mixin' version '7.0.170'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+	// Define wrapper values here so as to not have to always do so when updating gradlew.properties.
+	// Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
+	// documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
+	// file size for Gradle. If you do switch this to ALL, run the Gradle wrapper task twice afterwards.
+	// (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
+	distributionType = Wrapper.DistributionType.BIN
 }
 
 version = project.mod_version
@@ -10,11 +23,38 @@ base {
 	archivesName = project.archives_base_name
 }
 
-repositories {
-	maven {
-		name = "Terraformers"
-		url = "https://maven.terraformersmc.com/"
+// runs arguments
+runs {
+	client {
+		workingDirectory project.file('runs/client')
+//        jvmArgs "-Dmixin.debug.export=true"
+		systemProperty 'mixin.env.remapRefMap', 'true'
+		systemProperty 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+		programArguments.addAll '--username', 'Dev', '--width', '400', '--height', '200'
+		dependencies {
+//            runtime("curse.maven:jei-238222:5846880")
+//            runtime("mezz.jei:jei-1.21.1-neoforge:19.21.0.247")
+		}
 	}
+
+	server {
+		workingDirectory project.file('runs/server')
+		programArgument '--nogui'
+		systemProperty 'mixin.env.disableRefMap', 'true'
+		systemProperty 'mixin.env.remapRefMap', 'true'
+		systemProperty 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+	}
+
+	data {
+		workingDirectory project.file('runs/data')
+		systemProperty 'mixin.env.disableRefMap', 'true'
+		programArguments.addAll '--mod', 'alloy-forgery', '--all', '--output', file('src/generated/resources/').getAbsolutePath()
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url "https://maven.terraformersmc.com/releases/" }
 	maven {
 		url = "https://api.modrinth.com/maven"
 	}
@@ -24,50 +64,42 @@ repositories {
 	maven {
 		url "https://cursemaven.com/"
 	}
-}
-
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"terrastorageicons" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
+	maven { url 'https://maven.wispforest.io' }
+	maven { url "https://maven.shedaniel.me/" }
+	maven { url "https://maven.su5ed.dev/releases" } // forgified fabric api
+	flatDir {
+		dir 'libs'
 	}
-
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.neoforged:neoforge:${neo_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+//	compileOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	compileOnly "org.sinytra.forgified-fabric-api:forgified-fabric-api:${project.fabric_version}"
 
 	// NightConfig.
-	modImplementation "com.electronwill.night-config:core:${project.night_config_version}"
-	modImplementation "com.electronwill.night-config:toml:${project.night_config_version}"
-	include "com.electronwill.night-config:core:${project.night_config_version}"
-	include "com.electronwill.night-config:toml:${project.night_config_version}"
+	compileOnly "com.electronwill.night-config:core:${project.night_config_version}"
+	compileOnly "com.electronwill.night-config:toml:${project.night_config_version}"
 
-	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-	modImplementation("maven.modrinth:terrastorage:${project.terrastorage_version}")
+	compileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
+//	compileOnly("maven.modrinth:terrastorage:${project.terrastorage_version}")
+    compileOnly("libs:Terrastorage:1.2.6+2+1.21.1+NeoForge")
 }
 
 processResources {
 	inputs.property "version", project.version
+	filteringCharset "UTF-8"
 
-	filesMatching("fabric.mod.json") {
+	filesMatching("META-INF/neoforge.mods.toml") {
 		expand "version": project.version
 	}
 }
 
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
-}
+// Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
